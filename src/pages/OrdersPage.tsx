@@ -27,7 +27,9 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB', { dateStyle: 'long' })
 
 export function OrdersPage() {
   const navigate = useNavigate()
-  const isAuthed = useAppSelector((state) => Boolean(state.auth.accessToken))
+  // Depend on the token value, not just the bool, so a same-tab account
+  // switch (A → B) re-fires this effect with B's credentials.
+  const accessToken = useAppSelector((state) => state.auth.accessToken)
 
   const [orders, setOrders] = useState<OrderSummary[] | null>(null)
   const [loading, setLoading] = useState(true)
@@ -38,13 +40,14 @@ export function OrdersPage() {
   }, [navigate])
 
   useEffect(() => {
-    if (!isAuthed) {
+    if (!accessToken) {
       handleAuthError()
       return
     }
     const controller = new AbortController()
     setLoading(true)
     setError(null)
+    setOrders(null)
     listOrders(controller.signal)
       .then((res) => setOrders(res.orders))
       .catch((err) => {
@@ -57,7 +60,7 @@ export function OrdersPage() {
       })
       .finally(() => setLoading(false))
     return () => controller.abort()
-  }, [isAuthed, handleAuthError])
+  }, [accessToken, handleAuthError])
 
   const isEmpty = !loading && !error && (orders?.length ?? 0) === 0
 

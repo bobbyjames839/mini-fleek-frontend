@@ -134,20 +134,21 @@ export function clearGuestCart() {
 
 // Push every guest-cart line to the server, then drop the local copy. Called
 // after a successful login so the user's pre-auth selections aren't lost.
+// Lines are POSTed in parallel — they're independent inserts, so the previous
+// serial loop was N round-trips of pure wait. `allSettled` keeps the
+// best-effort semantics: a stale product 404 doesn't abort the rest.
 export async function mergeGuestCartIntoServer(): Promise<void> {
   const guest = readGuestCart()
   if (guest.items.length === 0) return
-  for (const line of guest.items) {
-    try {
-      await apiFetch<{ cart: Cart }>('/cart/items', {
+  await Promise.allSettled(
+    guest.items.map((line) =>
+      apiFetch<{ cart: Cart }>('/cart/items', {
         method: 'POST',
         auth: true,
         json: { product_id: line.product.id, quantity: line.quantity },
-      })
-    } catch {
-      // Best-effort merge; if a product is gone we just skip it.
-    }
-  }
+      }),
+    ),
+  )
   clearGuestCart()
   // Force a refresh so callers see the merged server state.
   cachedCart = null
@@ -283,3 +284,24 @@ export async function removeCartItem(itemId: string) {
   broadcastCart(res.cart)
   return res
 }
+
+// The cart is scoped to the signed-in user, so any access-token change
+// (logout, login, switch-account, silent token rotation) must invalidate the
+// in-memory cache and pull a fresh server cart. Without this, switching from
+// account A to account B in the same tab would render A's cart and counts
+// until the user manually refreshed.
+let lastCartToken: string | null = store.getState().auth.accessToken
+store.subscribe(() => {
+  const nextToken = store.getState().auth.accessToken
+  if (nextToken === lastCartToken) return
+  lastCartToken = nextToken
+  clearCartCache()
+  if (nextToken) {
+    // Authed → pull the new user's cart and broadcast so the badge updates.
+    getCart(undefined, { force: true }).catch(() => {})
+  } else {
+    // Logged out → fall back to whatever's in the guest cart (usually empty)
+    // and broadcast so listeners reset.
+    broadcastCart(guestCartToCart(readGuestCart()))
+  }
+})

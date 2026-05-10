@@ -32,7 +32,9 @@ export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const isAuthed = useAppSelector((state) => Boolean(state.auth.accessToken))
+  // Depend on the token value so an account switch (A → B) re-fires this
+  // effect and shows the new user's data instead of the cached A view.
+  const accessToken = useAppSelector((state) => state.auth.accessToken)
   const justPlaced = Boolean((location.state as { justPlaced?: boolean } | null)?.justPlaced)
 
   const [order, setOrder] = useState<Order | null>(null)
@@ -45,7 +47,7 @@ export function OrderDetailPage() {
   }, [navigate, id])
 
   useEffect(() => {
-    if (!isAuthed) {
+    if (!accessToken) {
       handleAuthError()
       return
     }
@@ -54,6 +56,7 @@ export function OrderDetailPage() {
     setLoading(true)
     setError(null)
     setStatus(null)
+    setOrder(null)
 
     getOrder(id, controller.signal)
       .then((res) => setOrder(res.order))
@@ -74,7 +77,7 @@ export function OrderDetailPage() {
       .finally(() => setLoading(false))
 
     return () => controller.abort()
-  }, [id, isAuthed, handleAuthError])
+  }, [id, accessToken, handleAuthError])
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-clip">

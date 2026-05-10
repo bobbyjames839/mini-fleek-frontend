@@ -95,6 +95,54 @@ show "we understood …") and the matching products in the same shape as
 - After submit, show a small "Understood as: Y2K Streetwear · ≤ £8/piece · Grade A · Vendors in GB, TR" chip row built from `parsed` so the user sees what the model did, and can clear it if it misread them.
 - If `products.length === 0`, suggest dropping the most specific `parsed` constraint.
 
+## Efficiency asks (open, backend changes)
+
+The frontend audit (2026-05-10) flagged two endpoint behaviours that the FE
+can't fix on its own. None of these are blockers — calling out so the backend
+agent can pick them up.
+
+### 1. Bundle `/reviews` into the initial boot, or expose a combined endpoint
+
+Today the home page fires `GET /reviews` in a separate effect on mount, while
+`loadCatalog` already fetches `/products`, `/categories`, and `/vendors` in
+parallel at App init. Reviews are site-wide (no `product_id`) and small, so:
+
+- **Preferred:** add reviews to a combined `GET /bootstrap` (or `/home`)
+  endpoint that returns `{ products, categories, vendors, reviews }` in one
+  round-trip. The FE would replace four parallel requests with one.
+- **Or:** leave `/reviews` as a separate endpoint but make it cache-friendly
+  (`Cache-Control: public, max-age=300`) so repeat home visits don't re-hit
+  the DB.
+
+### 2. `GET /orders` should accept `limit` / `offset`
+
+Currently `GET /orders` returns every order for the authed user, unbounded.
+For a power user this grows linearly forever. Please add:
+
+- `limit` (default 20, max 60)
+- `offset` (default 0)
+- Response includes `total` and `limit` / `offset` echoes (same shape as
+  `GET /products`).
+
+The FE will paginate the `/orders` listing once that's available.
+
+### 3. `POST /products/search` — robustness of `free_text` matching
+
+Separate to the above, the AI search regularly returns `total: 0` for queries
+like *"Mixed grade B streetwear, at least 100 pieces"* because the model
+extracts `free_text: "mixed streetwear"` and the backend's exact-substring
+match against `name` finds nothing in the seed catalogue. Two requested
+changes:
+
+- **OpenAI prompt:** only populate `free_text` when the user names a specific
+  product / brand / style. Generic adjectives like "mixed", "vintage",
+  "graded" should be ignored or mapped to the appropriate structured field
+  (e.g. `grade`).
+- **SQL match:** when `free_text` is set, tokenize on whitespace, drop
+  stopwords, and match `ANY` token (case-insensitive) against
+  `name OR brand OR description` — not the literal phrase against `name`
+  only. This makes the feature actually useful given a ~25-product seed.
+
 ## `GET /reviews` — site-wide testimonials
 
 Reviews are now site-wide testimonials about Fleek as a whole, **not** tied

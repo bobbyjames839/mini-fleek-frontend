@@ -16,7 +16,8 @@ import { useAppSelector } from '../store/hooks'
 
 export function CartPage() {
   const navigate = useNavigate()
-  const isAuthed = useAppSelector((state) => Boolean(state.auth.accessToken))
+  const accessToken = useAppSelector((state) => state.auth.accessToken)
+  const isAuthed = Boolean(accessToken)
 
   const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(true)
@@ -32,6 +33,7 @@ export function CartPage() {
     const controller = new AbortController()
     setLoading(true)
     setError(null)
+    setCart(null)
     getCart(controller.signal)
       .then((res) => setCart(res.cart))
       .catch((err) => {
@@ -44,7 +46,9 @@ export function CartPage() {
       })
       .finally(() => setLoading(false))
     return () => controller.abort()
-  }, [isAuthed, handleAuthError])
+    // Keyed on the token value so an account switch in the same tab (A → B)
+    // reloads the cart for the new user instead of showing A's items.
+  }, [accessToken, handleAuthError])
 
   async function applyMutation(
     item: CartItem,

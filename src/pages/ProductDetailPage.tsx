@@ -57,6 +57,15 @@ export function ProductDetailPage() {
   const [addingToCart, setAddingToCart] = useState(false)
   const [cartFeedback, setCartFeedback] = useState<{ kind: 'success' | 'error'; message: string } | null>(null)
 
+  // Auto-dismiss the cart toast — success disappears quickly, errors linger
+  // a bit so the user has time to read them.
+  useEffect(() => {
+    if (!cartFeedback) return
+    const ttl = cartFeedback.kind === 'success' ? 3200 : 5000
+    const id = window.setTimeout(() => setCartFeedback(null), ttl)
+    return () => window.clearTimeout(id)
+  }, [cartFeedback])
+
   // Fetch the product whenever the route id changes.
   useEffect(() => {
     if (!id) return
@@ -391,28 +400,6 @@ export function ProductDetailPage() {
                       )}
                     </button>
 
-                    {cartFeedback ? (
-                      <div
-                        role={cartFeedback.kind === 'error' ? 'alert' : 'status'}
-                        className={`rounded-2xl border px-3 py-2 text-sm ${
-                          cartFeedback.kind === 'success'
-                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                            : 'border-red-200 bg-red-50 text-red-700'
-                        }`}
-                      >
-                        {cartFeedback.kind === 'success' ? (
-                          <span className="inline-flex items-center gap-2">
-                            <span aria-hidden="true">✓</span>
-                            {cartFeedback.message}{' '}
-                            <Link to="/cart" className="font-semibold underline-offset-2 hover:underline">
-                              View cart
-                            </Link>
-                          </span>
-                        ) : (
-                          cartFeedback.message
-                        )}
-                      </div>
-                    ) : null}
                   </div>
 
                   <ul className="mt-5 space-y-2 border-t border-fleek-border/70 pt-4 text-xs text-fleek-muted">
@@ -577,6 +564,56 @@ export function ProductDetailPage() {
       </main>
 
       <SiteFooter />
+
+      {/* Add-to-cart toast — fixed near the top so it doesn't collide with
+          the AI search bar at the bottom. Auto-dismisses via the effect above. */}
+      {cartFeedback ? (
+        <div
+          aria-live="polite"
+          className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4 sm:top-6"
+        >
+          <div
+            role={cartFeedback.kind === 'error' ? 'alert' : 'status'}
+            className={`fleek-toast-in pointer-events-auto flex w-full max-w-md items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-xl backdrop-blur-md ${
+              cartFeedback.kind === 'success'
+                ? 'border-emerald-200 bg-emerald-50/95 text-emerald-800 shadow-emerald-900/10'
+                : 'border-red-200 bg-red-50/95 text-red-800 shadow-red-900/10'
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full text-xs font-bold text-white ${
+                cartFeedback.kind === 'success' ? 'bg-emerald-500' : 'bg-red-500'
+              }`}
+            >
+              {cartFeedback.kind === 'success' ? '✓' : '!'}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-medium leading-snug">{cartFeedback.message}</p>
+              {cartFeedback.kind === 'success' ? (
+                <Link
+                  to="/cart"
+                  className="mt-0.5 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 underline-offset-2 hover:underline"
+                >
+                  View cart <span aria-hidden="true">→</span>
+                </Link>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={() => setCartFeedback(null)}
+              aria-label="Dismiss"
+              className={`flex h-6 w-6 flex-none items-center justify-center rounded-full text-base leading-none transition ${
+                cartFeedback.kind === 'success'
+                  ? 'text-emerald-600 hover:bg-emerald-100'
+                  : 'text-red-600 hover:bg-red-100'
+              }`}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

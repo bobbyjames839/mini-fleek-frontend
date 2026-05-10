@@ -48,7 +48,7 @@ const COUNTRIES: { code: string; label: string }[] = [
 
 export function CheckoutPage() {
   const navigate = useNavigate()
-  const isAuthed = useAppSelector((state) => Boolean(state.auth.accessToken))
+  const accessToken = useAppSelector((state) => state.auth.accessToken)
 
   const [cart, setCart] = useState<Cart | null>(null)
   const [loadingCart, setLoadingCart] = useState(true)
@@ -64,13 +64,14 @@ export function CheckoutPage() {
   }, [navigate])
 
   useEffect(() => {
-    if (!isAuthed) {
+    if (!accessToken) {
       handleAuthError()
       return
     }
     const controller = new AbortController()
     setLoadingCart(true)
     setCartError(null)
+    setCart(null)
     getCart(controller.signal)
       .then((res) => setCart(res.cart))
       .catch((err) => {
@@ -83,7 +84,8 @@ export function CheckoutPage() {
       })
       .finally(() => setLoadingCart(false))
     return () => controller.abort()
-  }, [isAuthed, handleAuthError])
+    // Token value (not bool) so account switches re-fire the load.
+  }, [accessToken, handleAuthError])
 
   function updateField<K extends keyof AddressForm>(key: K, value: AddressForm[K]) {
     setAddress((prev) => ({ ...prev, [key]: value }))

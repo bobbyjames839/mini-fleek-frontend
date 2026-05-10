@@ -26,9 +26,6 @@
     background-image:
       radial-gradient(circle at 10% 10%, rgb(234 179 8 / 0.18), transparent 24%),
       radial-gradient(circle at 90% 0%, rgb(251 191 36 / 0.20), transparent 22%);
-    /* Reserve room for the floating AI search bar so end-of-page content (e.g.
-       footers, page CTAs) isn't hidden beneath it on any viewport. */
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   /* Tailwind v4 dropped the default `cursor: pointer` on interactive elements.
@@ -222,6 +219,21 @@
   animation: fleek-ai-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes fleek-toast-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fleek-toast-in {
+  animation: fleek-toast-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @keyframes fleek-ai-bar-in {
   0% {
     opacity: 0;
@@ -257,7 +269,8 @@
   .fleek-ai-pulse,
   .fleek-ai-pop,
   .fleek-ai-bar-in,
-  .fleek-ai-panel-in {
+  .fleek-ai-panel-in,
+  .fleek-toast-in {
     animation: none;
   }
 }

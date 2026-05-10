@@ -9,7 +9,9 @@ import {
 } from '../lib/api/cart'
 
 export function CartButton() {
-  const isAuthed = useAppSelector((state) => Boolean(state.auth.accessToken))
+  // Key on the token value so account switches (A → B without an explicit
+  // logout step) re-fire the fetch and refresh the badge count.
+  const accessToken = useAppSelector((state) => state.auth.accessToken)
   const initialCount = getCachedCartCount()
   const [cartCount, setCartCount] = useState(initialCount)
   const [bump, setBump] = useState(0)
@@ -19,7 +21,7 @@ export function CartButton() {
     const controller = new AbortController()
     getCart(controller.signal).catch(() => {})
     return () => controller.abort()
-  }, [isAuthed])
+  }, [accessToken])
 
   useEffect(() => {
     function onCart(event: Event) {
