@@ -1,0 +1,162 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-fleek-bg: #fff8ec;
+  --color-fleek-surface: #ffffff;
+  --color-fleek-text: #1c1917;
+  --color-fleek-muted: #78716c;
+  --color-fleek-primary: #eab308;
+  --color-fleek-primary-dark: #a16207;
+  --color-fleek-border: #fde68a;
+}
+
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  html,
+  body,
+  #root {
+    @apply min-h-screen;
+  }
+
+  body {
+    @apply m-0 bg-fleek-bg font-sans text-fleek-text antialiased;
+    background-image:
+      radial-gradient(circle at 10% 10%, rgb(234 179 8 / 0.18), transparent 24%),
+      radial-gradient(circle at 90% 0%, rgb(251 191 36 / 0.20), transparent 22%);
+  }
+
+  /* Tailwind v4 dropped the default `cursor: pointer` on interactive elements.
+     Restore it so every clickable thing actually feels clickable. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='menuitem'],
+  [role='option'],
+  [role='tab'],
+  summary,
+  label[for],
+  select:not(:disabled),
+  a[href] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+}
+
+@keyframes fleek-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-shell {
+  overflow: hidden;
+  width: 100%;
+  padding-inline: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 3rem;
+  animation: fleek-marquee 20s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes fleek-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fleek-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fleek-fade-up {
+  animation: fleek-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.fleek-fade-in {
+  animation: fleek-fade-in 0.9s ease-out both;
+}
+
+.fleek-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fleek-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes fleek-cart-bump {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.35);
+  }
+  60% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-cart-bump {
+  animation: fleek-cart-bump 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fleek-fade-up,
+  .fleek-fade-in {
+    animation: none;
+  }
+  .fleek-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .animate-cart-bump {
+    animation: none;
+  }
+}
