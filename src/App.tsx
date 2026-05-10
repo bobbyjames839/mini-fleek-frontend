@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { AuthPage } from './pages/AuthPage'
@@ -14,6 +14,19 @@ import { loadCatalog } from './store/catalogSlice'
 
 const HIDE_AI_SEARCH_ON = new Set(['/login', '/signup', '/checkout'])
 
+// Reset scroll to the top whenever the route changes. Without this, navigating
+// from a long list page to a detail page lands the user mid-page (browsers
+// preserve the previous scroll on SPA pushState navigation). Skipped when the
+// browser is restoring a back/forward navigation, so back-button scroll
+// position still feels right. useLayoutEffect avoids a paint flash.
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [pathname])
+  return null
+}
+
 function App() {
   const dispatch = useAppDispatch()
   const location = useLocation()
@@ -26,6 +39,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/products" element={<ProductListPage />} />

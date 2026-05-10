@@ -12,8 +12,10 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to={`/product/${product.id}`}
-      className={`group flex flex-col overflow-hidden rounded-3xl border border-fleek-border bg-white shadow-sm shadow-amber-900/5 transition-colors duration-150 ease-out ${
-        isSoldOut ? 'opacity-70' : 'hover:border-fleek-primary/50'
+      className={`group flex flex-col overflow-hidden rounded-3xl border border-fleek-border bg-white shadow-sm shadow-amber-900/5 transition-all duration-300 ease-out ${
+        isSoldOut
+          ? 'opacity-70'
+          : 'hover:-translate-y-1 hover:border-fleek-primary/50 hover:shadow-xl hover:shadow-amber-900/15'
       }`}
     >
       <div className="relative overflow-hidden">
@@ -22,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
             src={product.primary_photo}
             alt={product.name}
             loading="lazy"
-            className="h-56 w-full object-cover"
+            className="h-56 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
           />
         ) : (
           <div className="flex h-56 w-full items-center justify-center bg-fleek-bg text-xs uppercase tracking-[0.14em] text-fleek-muted">

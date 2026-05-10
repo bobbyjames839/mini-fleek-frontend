@@ -190,7 +190,7 @@ export function AiSearchBar() {
     setLoadingStep(0)
     const id = window.setInterval(() => {
       setLoadingStep((prev) => Math.min(prev + 1, LOADING_STEPS.length - 1))
-    }, 600)
+    }, 900)
     return () => window.clearInterval(id)
   }, [state.phase])
 
@@ -270,7 +270,7 @@ export function AiSearchBar() {
           <div
             role="dialog"
             aria-label="AI search"
-            className="fleek-ai-panel-in mb-2 flex max-h-[min(78vh,42rem)] flex-col overflow-hidden rounded-3xl border border-fleek-border bg-white/95 shadow-2xl shadow-amber-900/15 backdrop-blur-md sm:mb-3"
+            className="fleek-ai-panel-in mb-2 flex max-h-[min(70vh,32rem)] flex-col overflow-hidden rounded-3xl border border-fleek-border bg-white/95 shadow-2xl shadow-amber-900/15 backdrop-blur-md sm:mb-3 sm:max-h-[min(78vh,42rem)]"
           >
             {state.phase === 'idle' ? (
               <div className="overflow-y-auto p-3 sm:p-4">
@@ -309,45 +309,151 @@ export function AiSearchBar() {
             ) : null}
 
             {state.phase === 'loading' ? (
-              <div className="overflow-y-auto p-4 sm:p-5">
-                <div className="flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className="fleek-ai-pulse flex h-9 w-9 flex-none items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-fleek-primary text-base text-white"
-                  >
-                    ✦
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-fleek-text">
-                      “{state.query}”
-                    </p>
-                    <p className="text-xs text-fleek-muted">
-                      {LOADING_STEPS[loadingStep]}…
-                    </p>
+              <div className="relative flex flex-col overflow-hidden">
+                {/* Top progress sweep — gives a clear "working" signal pinned
+                    to the panel even while the rest of the layout is still. */}
+                <div className="relative h-0.5 flex-none overflow-hidden bg-amber-50">
+                  <div className="fleek-progress-bar absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-fleek-primary to-transparent" />
+                </div>
+
+                <div className="overflow-y-auto p-4 sm:p-5">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    {/* Sparkle with an orbiting particle and a glowing pulse ring. */}
+                    <div className="relative flex-none">
+                      <span
+                        aria-hidden="true"
+                        className="fleek-glow-ring relative z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-300 to-fleek-primary text-base text-white sm:h-11 sm:w-11"
+                      >
+                        <span className="fleek-ai-pulse">✦</span>
+                      </span>
+                      {/* Three orbiting dots — staggered phase via negative
+                          delay so they're already in motion at mount. */}
+                      <span
+                        aria-hidden="true"
+                        className="fleek-orbit pointer-events-none absolute inset-0"
+                        style={{ animationDelay: '0ms' }}
+                      >
+                        <span className="absolute -right-0.5 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-amber-400 shadow-[0_0_6px_rgb(234_179_8_/_0.7)]" />
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="fleek-orbit pointer-events-none absolute inset-0"
+                        style={{ animationDelay: '-0.8s', animationDuration: '2.8s' }}
+                      >
+                        <span className="absolute left-1/2 -top-0.5 h-1 w-1 -translate-x-1/2 rounded-full bg-amber-300 shadow-[0_0_6px_rgb(252_211_77_/_0.7)]" />
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="fleek-orbit pointer-events-none absolute inset-0"
+                        style={{ animationDelay: '-1.6s', animationDuration: '3.2s' }}
+                      >
+                        <span className="absolute -left-0.5 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-fleek-primary shadow-[0_0_6px_rgb(234_179_8_/_0.7)]" />
+                      </span>
+                    </div>
+
+                    <div className="min-w-0 flex-1 pt-0.5">
+                      <p className="truncate text-sm font-semibold text-fleek-text">
+                        “{state.query}”
+                      </p>
+                      <div className="mt-1 flex items-center gap-1.5 text-xs text-fleek-muted">
+                        <span className="truncate">{LOADING_STEPS[loadingStep]}</span>
+                        <span aria-hidden="true" className="inline-flex items-baseline gap-0.5">
+                          <span
+                            className="fleek-thinking-dot inline-block h-1 w-1 rounded-full bg-fleek-primary"
+                            style={{ animationDelay: '0ms' }}
+                          />
+                          <span
+                            className="fleek-thinking-dot inline-block h-1 w-1 rounded-full bg-fleek-primary"
+                            style={{ animationDelay: '160ms' }}
+                          />
+                          <span
+                            className="fleek-thinking-dot inline-block h-1 w-1 rounded-full bg-fleek-primary"
+                            style={{ animationDelay: '320ms' }}
+                          />
+                        </span>
+                      </div>
+
+                      {/* Step ladder — each step lights up as the loader
+                          progresses, so the user sees forward motion even
+                          on a slow request. */}
+                      <ol className="mt-3 grid gap-1 text-[11px] sm:grid-cols-2">
+                        {LOADING_STEPS.map((step, i) => {
+                          const done = i < loadingStep
+                          const active = i === loadingStep
+                          return (
+                            <li
+                              key={step}
+                              className={`flex items-center gap-1.5 transition-colors duration-300 ${
+                                done
+                                  ? 'text-emerald-600'
+                                  : active
+                                    ? 'text-fleek-text'
+                                    : 'text-fleek-muted/60'
+                              }`}
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={`flex h-3.5 w-3.5 flex-none items-center justify-center rounded-full text-[9px] font-bold transition-all duration-300 ${
+                                  done
+                                    ? 'bg-emerald-500 text-white'
+                                    : active
+                                      ? 'fleek-glow-ring bg-fleek-primary text-white'
+                                      : 'border border-fleek-border bg-white text-transparent'
+                                }`}
+                              >
+                                {done ? '✓' : active ? '·' : ''}
+                              </span>
+                              <span className="truncate">{step}</span>
+                            </li>
+                          )
+                        })}
+                      </ol>
+                    </div>
                   </div>
-                </div>
 
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className="fleek-ai-shimmer h-6 rounded-full"
-                      style={{
-                        width: `${72 + ((i * 37) % 80)}px`,
-                        animationDelay: `${i * 120}ms`,
-                      }}
-                    />
-                  ))}
-                </div>
+                  {/* Shimmer chips — preview of the upcoming "Understood as"
+                      strip. Sized to look like real parsed chips. */}
+                  <div className="mt-5 flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-fleek-muted/80">
+                      Understanding
+                    </span>
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <span
+                        key={i}
+                        className="fleek-ai-shimmer h-6 rounded-full border border-fleek-border/60"
+                        style={{
+                          width: `${72 + ((i * 37) % 80)}px`,
+                          animationDelay: `${i * 120}ms`,
+                        }}
+                      />
+                    ))}
+                  </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="fleek-ai-shimmer h-24 rounded-2xl"
-                      style={{ animationDelay: `${200 + i * 140}ms` }}
-                    />
-                  ))}
+                  {/* Result card placeholders. Aspect ratio matches the real
+                      grid so layout doesn't jump on reveal. */}
+                  <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="overflow-hidden rounded-2xl border border-fleek-border/60"
+                      >
+                        <div
+                          className="fleek-ai-shimmer aspect-[4/3] w-full"
+                          style={{ animationDelay: `${200 + i * 110}ms` }}
+                        />
+                        <div className="space-y-1.5 p-2 sm:p-2.5">
+                          <div
+                            className="fleek-ai-shimmer h-2.5 w-3/4 rounded-full"
+                            style={{ animationDelay: `${260 + i * 110}ms` }}
+                          />
+                          <div
+                            className="fleek-ai-shimmer h-2 w-1/2 rounded-full"
+                            style={{ animationDelay: `${320 + i * 110}ms` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : null}

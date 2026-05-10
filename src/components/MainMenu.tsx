@@ -79,7 +79,7 @@ export function MainMenu() {
     }`
 
   return (
-    <nav ref={navRef} className="relative flex items-center gap-1 md:gap-2" aria-label="Primary">
+    <nav ref={navRef} className="relative hidden items-center gap-1 sm:flex md:gap-2" aria-label="Primary">
       {/* Categories */}
       <div
         className="relative"
@@ -103,7 +103,7 @@ export function MainMenu() {
             role="menu"
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
-            className="absolute left-1/2 top-full z-40 mt-2 w-72 -translate-x-1/2 overflow-hidden rounded-2xl border border-fleek-border bg-white p-1.5 shadow-xl shadow-amber-900/10"
+            className="absolute left-1/2 top-full z-40 mt-2 w-[min(18rem,calc(100vw-1.5rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-fleek-border bg-white p-1.5 shadow-xl shadow-amber-900/10"
           >
             {categories.length === 0 ? (
               <p className="px-3 py-3 text-sm text-fleek-muted">Loading categories…</p>
@@ -160,7 +160,7 @@ export function MainMenu() {
             role="menu"
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
-            className="absolute left-1/2 top-full z-40 mt-2 w-80 -translate-x-1/2 overflow-hidden rounded-2xl border border-fleek-border bg-white p-1.5 shadow-xl shadow-amber-900/10"
+            className="absolute left-1/2 top-full z-40 mt-2 w-[min(20rem,calc(100vw-1.5rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-fleek-border bg-white p-1.5 shadow-xl shadow-amber-900/10"
           >
             {vendors.length === 0 ? (
               <p className="px-3 py-3 text-sm text-fleek-muted">Loading vendors…</p>

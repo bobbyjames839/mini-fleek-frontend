@@ -84,11 +84,11 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-fleek-border/70 bg-white/75 backdrop-blur-md">
-      <div className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3.5 md:gap-6 md:px-8 lg:px-10">
-        <div className="flex items-center gap-4 md:gap-8">
+      <div className="flex w-full items-center justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-3.5 md:gap-6 md:px-8 lg:px-10">
+        <div className="flex min-w-0 items-center gap-3 md:gap-8">
           <Link
             to="/"
-            className="text-lg font-semibold tracking-[0.16em] text-fleek-text transition hover:text-fleek-primary md:text-xl"
+            className="flex-none text-[15px] font-semibold tracking-[0.14em] text-fleek-text transition hover:text-fleek-primary sm:text-lg sm:tracking-[0.16em] md:text-xl"
             title="MiniFleek"
           >
             MINI//FLEEK
@@ -96,7 +96,7 @@ export function SiteHeader() {
           <MainMenu />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-none items-center gap-1.5 sm:gap-2">
           <CartButton />
           {isAuthed ? (
             <div className="relative" ref={accountRef}>
@@ -105,7 +105,7 @@ export function SiteHeader() {
                 onClick={() => setMenuOpen((previous) => !previous)}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-fleek-border bg-white text-sm font-semibold text-fleek-text shadow-sm shadow-amber-900/5 transition hover:-translate-y-0.5 hover:border-fleek-primary/40 hover:shadow-md"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-fleek-border bg-white text-xs font-semibold text-fleek-text shadow-sm shadow-amber-900/5 transition hover:-translate-y-0.5 hover:border-fleek-primary/40 hover:shadow-md sm:h-11 sm:w-11 sm:text-sm"
                 aria-label="Open account menu"
                 title="Account"
               >
@@ -115,7 +115,7 @@ export function SiteHeader() {
               {menuOpen ? (
                 <div
                   role="menu"
-                  className="absolute right-0 z-30 mt-3 w-80 origin-top-right overflow-hidden rounded-2xl border border-fleek-border bg-white shadow-xl shadow-amber-900/10"
+                  className="absolute right-0 z-30 mt-3 w-[min(20rem,calc(100vw-1.5rem))] origin-top-right overflow-hidden rounded-2xl border border-fleek-border bg-white shadow-xl shadow-amber-900/10"
                 >
                   <div className="flex items-start gap-3 bg-gradient-to-br from-amber-50 to-white p-4">
                     <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-fleek-primary text-sm font-semibold text-white shadow-md shadow-amber-900/15">
@@ -181,13 +181,13 @@ export function SiteHeader() {
             <>
               <Link
                 to="/login"
-                className="rounded-full border border-fleek-border bg-white px-4 py-2 text-sm font-semibold text-fleek-text shadow-sm shadow-amber-900/5 transition hover:-translate-y-0.5 hover:border-fleek-primary/40 hover:text-fleek-primary"
+                className="hidden rounded-full border border-fleek-border bg-white px-3 py-1.5 text-xs font-semibold text-fleek-text shadow-sm shadow-amber-900/5 transition hover:-translate-y-0.5 hover:border-fleek-primary/40 hover:text-fleek-primary sm:inline-flex sm:px-4 sm:py-2 sm:text-sm"
               >
                 Log in
               </Link>
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-1 rounded-full bg-fleek-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-amber-900/10 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-lg"
+                className="inline-flex items-center gap-1 rounded-full bg-fleek-primary px-3 py-1.5 text-xs font-semibold text-white shadow-md shadow-amber-900/10 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-lg sm:px-4 sm:py-2 sm:text-sm"
               >
                 Sign up
                 <span aria-hidden="true">→</span>

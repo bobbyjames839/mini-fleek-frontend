@@ -219,6 +219,126 @@
   animation: fleek-ai-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@keyframes fleek-orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fleek-orbit {
+  animation: fleek-orbit 2.4s linear infinite;
+}
+
+@keyframes fleek-thinking-dot {
+  0%, 80%, 100% {
+    transform: scale(0.45);
+    opacity: 0.45;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fleek-thinking-dot {
+  animation: fleek-thinking-dot 1.2s ease-in-out infinite;
+}
+
+@keyframes fleek-type-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.fleek-type-cursor {
+  animation: fleek-type-cursor 1s steps(1) infinite;
+}
+
+@keyframes fleek-glow-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgb(234 179 8 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgb(234 179 8 / 0);
+  }
+}
+
+.fleek-glow-ring {
+  animation: fleek-glow-ring 1.6s ease-out infinite;
+}
+
+@keyframes fleek-progress-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.fleek-progress-bar {
+  animation: fleek-progress-bar 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes fleek-celebrate-in {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.85);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fleek-celebrate-in {
+  animation: fleek-celebrate-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fleek-checkmark-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fleek-checkmark-pop {
+  animation: fleek-checkmark-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes fleek-spark-rise {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0), var(--dy, -60px)) scale(0.4);
+  }
+}
+
+.fleek-spark {
+  animation: fleek-spark-rise 1.6s ease-out both;
+}
+
+@keyframes fleek-press {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.97); }
+}
+
+.fleek-press:active {
+  animation: fleek-press 0.18s ease-out;
+}
+
 @keyframes fleek-toast-in {
   0% {
     opacity: 0;
@@ -270,7 +390,15 @@
   .fleek-ai-pop,
   .fleek-ai-bar-in,
   .fleek-ai-panel-in,
-  .fleek-toast-in {
+  .fleek-toast-in,
+  .fleek-orbit,
+  .fleek-thinking-dot,
+  .fleek-type-cursor,
+  .fleek-glow-ring,
+  .fleek-progress-bar,
+  .fleek-celebrate-in,
+  .fleek-checkmark-pop,
+  .fleek-spark {
     animation: none;
   }
 }

@@ -178,36 +178,36 @@ export function HomePage() {
             <img
               src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=2200&q=80"
               alt="Vintage fashion rails in a wholesale showroom"
-              className="h-[78vh] min-h-[520px] w-full object-cover opacity-90"
+              className="h-[88vh] min-h-[600px] w-full object-cover opacity-90 md:h-[78vh] md:min-h-[520px]"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/50 to-transparent" />
 
-            <div className="absolute inset-0 flex items-center">
-              <div className="mx-auto w-full max-w-7xl px-6 py-10 md:px-8 lg:px-10">
-                <div className="max-w-2xl space-y-5 text-white fleek-fade-up">
-                  <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur">
+            <div className="absolute inset-0 flex items-center pb-32 md:pb-20">
+              <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-6 md:px-8 md:py-10 lg:px-10">
+                <div className="max-w-2xl space-y-4 text-white fleek-fade-up md:space-y-5">
+                  <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur sm:text-xs">
                     <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     Wholesale marketplace · Live
                   </p>
-                  <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
+                  <h1 className="text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
                     Source graded vintage inventory from verified global vendors.
                   </h1>
-                  <p className="max-w-xl text-base text-slate-100/90 md:text-lg">
+                  <p className="max-w-xl text-sm text-slate-100/90 sm:text-base md:text-lg">
                     Built for buyers to discover, compare, and purchase bundle inventory across
                     trusted supply partners.
                   </p>
 
-                  <div className="flex flex-wrap gap-3 pt-1">
+                  <div className="flex flex-wrap gap-2.5 pt-1 sm:gap-3">
                     <Link
                       to="/products"
-                      className="inline-flex items-center gap-1.5 rounded-full bg-fleek-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-900/20 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-xl"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-fleek-primary px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-amber-900/20 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-xl sm:px-5 sm:py-3"
                     >
                       Browse bundles
                       <span aria-hidden="true">→</span>
                     </Link>
                     <button
                       type="button"
-                      className="rounded-full border border-white/40 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20"
+                      className="rounded-full border border-white/40 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20 sm:px-5 sm:py-3"
                     >
                       Contact sales
                     </button>
@@ -219,14 +219,14 @@ export function HomePage() {
             <div className="absolute inset-x-0 bottom-0 border-t border-white/15 bg-slate-950/55 backdrop-blur fleek-fade-in"
                  style={{ animationDelay: '200ms' }}
             >
-              <div className="mx-auto grid w-full max-w-7xl grid-cols-3 divide-x divide-white/15 px-4 md:px-8 lg:px-10">
+              <div className="mx-auto grid w-full max-w-7xl grid-cols-3 divide-x divide-white/15 px-2 sm:px-4 md:px-8 lg:px-10">
                 {heroStats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="flex flex-col items-center gap-0.5 px-4 py-4 text-center text-white"
+                    className="flex flex-col items-center gap-0.5 px-2 py-3 text-center text-white sm:px-4 sm:py-4"
                   >
-                    <span className="text-lg font-semibold md:text-2xl">{stat.value}</span>
-                    <span className="text-[11px] uppercase tracking-[0.14em] text-amber-100/80 md:text-xs">
+                    <span className="text-base font-semibold sm:text-lg md:text-2xl">{stat.value}</span>
+                    <span className="text-[10px] uppercase tracking-[0.12em] text-amber-100/80 sm:text-[11px] sm:tracking-[0.14em] md:text-xs">
                       {stat.label}
                     </span>
                   </div>

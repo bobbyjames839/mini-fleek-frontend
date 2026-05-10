@@ -201,7 +201,7 @@ export function ProductDetailPage() {
             </nav>
 
             {/* Hero: gallery + buy box */}
-            <Reveal as="section" className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
+            <Reveal as="section" className="grid gap-6 md:grid-cols-[1.4fr_1fr] md:gap-10">
               {/* Gallery */}
               <div className="space-y-3">
                 <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-fleek-border bg-fleek-bg shadow-sm shadow-amber-900/5">
@@ -281,7 +281,7 @@ export function ProductDetailPage() {
               </div>
 
               {/* Buy box */}
-              <aside className="lg:sticky lg:top-24 lg:self-start">
+              <aside className="md:sticky md:top-24 md:self-start">
                 <div className="rounded-3xl border border-fleek-border bg-white p-6 shadow-sm shadow-amber-900/5">
                   <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-fleek-muted">
                     <Link
@@ -682,7 +682,7 @@ function DetailSkeleton() {
   return (
     <div className="space-y-8">
       <div className="h-4 w-64 animate-pulse rounded-full bg-white/60" />
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:gap-10">
+      <div className="grid gap-6 md:grid-cols-[1.4fr_1fr] md:gap-10">
         <div className="aspect-[4/3] animate-pulse rounded-3xl border border-fleek-border bg-white/60" />
         <div className="h-[28rem] animate-pulse rounded-3xl border border-fleek-border bg-white/60" />
       </div>

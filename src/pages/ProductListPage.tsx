@@ -887,14 +887,8 @@ export function ProductListPage() {
               ) : view === 'grid' ? (
                 <>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                    {products.map((product, index) => (
-                      <div
-                        key={product.id}
-                        className="fleek-fade-up"
-                        style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
-                      >
-                        <ProductCard product={product} />
-                      </div>
+                    {products.map((product) => (
+                      <ProductCard key={product.id} product={product} />
                     ))}
                   </div>
                 </>
@@ -907,7 +901,7 @@ export function ProductListPage() {
                       <Reveal
                         key={v.slug}
                         as="article"
-                        delayMs={Math.min(idx, 6) * 60}
+                        delayMs={0}
                         className="overflow-hidden rounded-2xl border border-fleek-border bg-white shadow-sm shadow-amber-900/5"
                       >
                         <div className="grid gap-5 p-5 md:grid-cols-[16rem_1fr] md:gap-6 md:p-6">
@@ -980,7 +974,7 @@ export function ProductListPage() {
                       <Reveal
                         key={c.slug}
                         as="article"
-                        delayMs={Math.min(idx, 6) * 60}
+                        delayMs={0}
                         className="overflow-hidden rounded-2xl border border-fleek-border bg-white shadow-sm shadow-amber-900/5"
                       >
                         <div className="grid gap-5 p-5 md:grid-cols-[16rem_1fr] md:gap-6 md:p-6">

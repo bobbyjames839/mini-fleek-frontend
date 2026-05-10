@@ -37,6 +37,30 @@ export function OrderDetailPage() {
   const accessToken = useAppSelector((state) => state.auth.accessToken)
   const justPlaced = Boolean((location.state as { justPlaced?: boolean } | null)?.justPlaced)
 
+  // Celebratory modal — opens automatically when arriving from checkout. We
+  // also clear the `justPlaced` location state on dismiss so a refresh or a
+  // back/forward nav doesn't pop the modal again.
+  const [celebrateOpen, setCelebrateOpen] = useState(justPlaced)
+  useEffect(() => {
+    if (justPlaced) setCelebrateOpen(true)
+  }, [justPlaced])
+  function dismissCelebrate() {
+    setCelebrateOpen(false)
+    if (justPlaced && id) {
+      navigate(`/orders/${id}`, { replace: true, state: null })
+    }
+  }
+  // Lock the body while the modal is open so the page underneath doesn't
+  // scroll behind the celebration.
+  useEffect(() => {
+    if (!celebrateOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [celebrateOpen])
+
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -272,6 +296,98 @@ export function OrderDetailPage() {
       </main>
 
       <SiteFooter />
+
+      {/* Celebration modal — fires once after successful checkout. Sparks
+          rise behind the card, the checkmark pops, and a CTA dismisses. */}
+      {celebrateOpen && order ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Order confirmed"
+          className="fixed inset-0 z-[60] flex items-center justify-center px-4"
+        >
+          <button
+            type="button"
+            aria-label="Close confirmation"
+            onClick={dismissCelebrate}
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+          />
+          <div className="fleek-celebrate-in pointer-events-auto relative w-full max-w-md overflow-hidden rounded-3xl border border-fleek-border bg-white p-6 text-center shadow-2xl shadow-amber-900/20 sm:p-8">
+            {/* Spark particles rising behind the card content. */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+              {Array.from({ length: 12 }).map((_, i) => {
+                const angle = (i / 12) * Math.PI * 2
+                const dx = Math.round(Math.cos(angle) * 90)
+                const dy = Math.round(Math.sin(angle) * 90 - 30)
+                const colors = ['bg-amber-400', 'bg-emerald-400', 'bg-fleek-primary', 'bg-amber-300']
+                return (
+                  <span
+                    key={i}
+                    className={`fleek-spark absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full ${colors[i % colors.length]}`}
+                    style={
+                      {
+                        '--dx': `${dx}px`,
+                        '--dy': `${dy}px`,
+                        animationDelay: `${(i % 6) * 90}ms`,
+                      } as React.CSSProperties
+                    }
+                  />
+                )
+              })}
+            </div>
+
+            <div className="relative">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 sm:h-20 sm:w-20">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="fleek-checkmark-pop h-8 w-8 sm:h-10 sm:w-10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12.5l4.5 4.5L19 7.5" />
+                </svg>
+              </div>
+
+              <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-600">
+                Order confirmed
+              </p>
+              <h2 className="mt-1 text-2xl font-semibold text-fleek-text sm:text-3xl">
+                Thanks — your order is in.
+              </h2>
+              <p className="mt-2 text-sm text-fleek-muted">
+                Order <span className="font-semibold text-fleek-text">#{shortId(order.id)}</span> · {order.items.length}{' '}
+                {order.items.length === 1 ? 'bundle' : 'bundles'} · total{' '}
+                <span className="font-semibold text-fleek-text">{formatGBP(order.total)}</span>.
+              </p>
+              <p className="mt-1 text-xs text-fleek-muted">
+                We've notified the vendor{order.items.length > 1 ? 's' : ''}. Bookmark this page to track it.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+                <button
+                  type="button"
+                  onClick={dismissCelebrate}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full bg-fleek-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-amber-900/15 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-lg"
+                >
+                  View order
+                  <span aria-hidden="true">→</span>
+                </button>
+                <Link
+                  to="/products"
+                  onClick={dismissCelebrate}
+                  className="inline-flex items-center justify-center rounded-full border border-fleek-border bg-white px-5 py-2.5 text-sm font-semibold text-fleek-text transition hover:-translate-y-0.5 hover:border-fleek-primary/50 hover:text-fleek-primary"
+                >
+                  Keep sourcing
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

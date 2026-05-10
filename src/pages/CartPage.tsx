@@ -120,7 +120,7 @@ export function CartPage() {
         ) : isEmpty ? (
           <EmptyCart />
         ) : cart ? (
-          <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:gap-10">
+          <div className="grid gap-6 md:grid-cols-[1.6fr_1fr] md:gap-10">
             <section className="space-y-4">
               {actionError ? (
                 <div
@@ -251,7 +251,7 @@ export function CartPage() {
               </div>
             </section>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
+            <aside className="md:sticky md:top-24 md:self-start">
               <div className="rounded-3xl border border-fleek-border bg-white p-6 shadow-sm shadow-amber-900/5">
                 <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-fleek-text">
                   Order summary
@@ -352,7 +352,7 @@ function EmptyCart() {
 
 function CartSkeleton() {
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr] lg:gap-10">
+    <div className="grid gap-6 md:grid-cols-[1.6fr_1fr] md:gap-10">
       <div className="space-y-4">
         {[0, 1].map((i) => (
           <div
