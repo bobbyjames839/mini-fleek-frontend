@@ -8,6 +8,7 @@ import { type Category } from '../lib/api/categories'
 import { type Vendor } from '../lib/api/vendors'
 import { useAppSelector } from '../store/hooks'
 import { Reveal } from '../components/Reveal'
+import { countryLabel } from '../lib/countries'
 
 const SORT_OPTIONS: { value: ProductSort; label: string }[] = [
   { value: 'newest', label: 'Newest' },
@@ -357,25 +358,6 @@ function FilterChip({ label, onRemove }: FilterChipProps) {
       </button>
     </span>
   )
-}
-
-const COUNTRY_NAMES: Record<string, string> = {
-  GB: 'United Kingdom',
-  US: 'United States',
-  PK: 'Pakistan',
-  IN: 'India',
-  LV: 'Latvia',
-  PL: 'Poland',
-  DE: 'Germany',
-  FR: 'France',
-  IT: 'Italy',
-  ES: 'Spain',
-  NL: 'Netherlands',
-  BE: 'Belgium',
-}
-
-function countryLabel(code: string) {
-  return COUNTRY_NAMES[code] || code
 }
 
 

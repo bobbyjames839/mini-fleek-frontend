@@ -128,7 +128,7 @@ function guestCartToCart(g: GuestCartShape): Cart {
   }
 }
 
-export function clearGuestCart() {
+function clearGuestCart() {
   writeGuestCart({ items: [] })
 }
 

@@ -4,6 +4,7 @@ import { aiSearch, type ParsedSearchFilter } from '../lib/api/aiSearch'
 import { useAppSelector } from '../store/hooks'
 import type { ProductSummary } from '../lib/api/products'
 import { formatGBP } from '../lib/money'
+import { countryLabel } from '../lib/countries'
 
 const EXAMPLES = [
   'Y2K denim under £8/piece from European vendors, grade A',
@@ -11,25 +12,6 @@ const EXAMPLES = [
   'Designer handbags under £500 total from UK sellers',
   'Mixed grade B streetwear, at least 100 pieces',
 ]
-
-const COUNTRY_NAMES: Record<string, string> = {
-  GB: 'United Kingdom',
-  US: 'United States',
-  PK: 'Pakistan',
-  IN: 'India',
-  LV: 'Latvia',
-  PL: 'Poland',
-  DE: 'Germany',
-  FR: 'France',
-  IT: 'Italy',
-  ES: 'Spain',
-  NL: 'Netherlands',
-  BE: 'Belgium',
-}
-
-function countryLabel(code: string): string {
-  return COUNTRY_NAMES[code] || code
-}
 
 const SORT_LABELS: Record<string, string> = {
   newest: 'Newest first',

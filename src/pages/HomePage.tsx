@@ -6,25 +6,7 @@ import { Reveal } from '../components/Reveal'
 import { useAppSelector } from '../store/hooks'
 import { formatGBP } from '../lib/money'
 import { getReviews, type Review } from '../lib/api/reviews'
-
-const COUNTRY_NAMES: Record<string, string> = {
-  GB: 'United Kingdom',
-  US: 'United States',
-  PK: 'Pakistan',
-  IN: 'India',
-  LV: 'Latvia',
-  PL: 'Poland',
-  DE: 'Germany',
-  FR: 'France',
-  IT: 'Italy',
-  ES: 'Spain',
-  NL: 'Netherlands',
-  BE: 'Belgium',
-}
-
-function countryLabel(code: string) {
-  return COUNTRY_NAMES[code] || code
-}
+import { countryLabel } from '../lib/countries'
 
 const sourcingSteps = [
   {
