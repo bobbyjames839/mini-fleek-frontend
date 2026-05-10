@@ -6,11 +6,16 @@ import type { ProductSummary } from '../lib/api/products'
 import { formatGBP } from '../lib/money'
 import { countryLabel } from '../lib/countries'
 
+// Broad, low-constraint prompts that exercise different fields of the parsed
+// filter (sort, vendor country, total price, piece count) without pinning so
+// many constraints that the seed catalogue can't satisfy any of them. Tight
+// queries like "Y2K denim under £8/piece, grade A" routinely returned 0 hits
+// because the seed is small.
 const EXAMPLES = [
-  'Y2K denim under £8/piece from European vendors, grade A',
-  'Vintage Nike hoodies, biggest bundles first',
-  'Designer handbags under £500 total from UK sellers',
-  'Mixed grade B streetwear, at least 100 pieces',
+  'Cheapest per piece',
+  'Bundles under £500 total',
+  'Biggest bundles first',
+  'Vendors in the UK',
 ]
 
 const SORT_LABELS: Record<string, string> = {
