@@ -876,7 +876,7 @@ export function ProductListPage() {
                 </>
               ) : view === 'by_vendor' ? (
                 <div className="space-y-4">
-                  {productsByVendor.map(({ vendor: v, items }, idx) => {
+                  {productsByVendor.map(({ vendor: v, items }) => {
                     const fullVendor = vendors.find((vv) => vv.slug === v.slug)
                     const onSale = items.some((p) => p.discount_pct !== null && p.discount_pct > 0)
                     return (
@@ -949,7 +949,7 @@ export function ProductListPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {productsByCategory.map(({ category: c, items }, idx) => {
+                  {productsByCategory.map(({ category: c, items }) => {
                     const fullCategory = categories.find((cc) => cc.slug === c.slug)
                     const onSale = items.some((p) => p.discount_pct !== null && p.discount_pct > 0)
                     return (
