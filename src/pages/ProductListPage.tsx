@@ -4,6 +4,8 @@ import { SiteHeader } from '../components/SiteHeader'
 import { SiteFooter } from '../components/SiteFooter'
 import { ProductCard } from '../components/ProductCard'
 import { type ProductSort, type ProductSummary } from '../lib/api/products'
+import { type Category } from '../lib/api/categories'
+import { type Vendor } from '../lib/api/vendors'
 import { useAppSelector } from '../store/hooks'
 import { Reveal } from '../components/Reveal'
 
