@@ -1,7 +1,13 @@
 import { apiFetch } from './client'
+import { store } from '../../store'
 
 export const CART_UPDATED_EVENT = 'fleek:cart-updated'
 const CART_COUNT_KEY = 'fleek_cart_item_count'
+const GUEST_CART_KEY = 'fleek_guest_cart'
+
+function isAuthed(): boolean {
+  return Boolean(store.getState().auth.accessToken)
+}
 
 // Cached outside the component tree so a remount of <MainMenu /> on route
 // change can render the badge synchronously — without it, every page nav
@@ -68,7 +74,109 @@ export interface Cart {
   item_count: number
 }
 
-export async function addToCart(productId: string, quantity = 1) {
+// ---------- Guest cart (localStorage) ----------
+//
+// Lets unauthenticated visitors fill a cart locally. The cart page is fully
+// usable for guests; only checkout requires sign-in. On login we merge the
+// guest cart into the server cart via `mergeGuestCartIntoServer`.
+
+interface GuestItem {
+  // We use product.id as the line id so adding the same product twice merges.
+  id: string
+  product: CartLineProduct
+  quantity: number
+}
+
+interface GuestCartShape {
+  items: GuestItem[]
+}
+
+function readGuestCart(): GuestCartShape {
+  if (typeof window === 'undefined') return { items: [] }
+  const raw = window.localStorage.getItem(GUEST_CART_KEY)
+  if (!raw) return { items: [] }
+  try {
+    const parsed = JSON.parse(raw) as GuestCartShape
+    if (parsed && Array.isArray(parsed.items)) return parsed
+  } catch {
+    // fall through to empty
+  }
+  return { items: [] }
+}
+
+function writeGuestCart(next: GuestCartShape) {
+  if (typeof window === 'undefined') return
+  if (next.items.length === 0) window.localStorage.removeItem(GUEST_CART_KEY)
+  else window.localStorage.setItem(GUEST_CART_KEY, JSON.stringify(next))
+}
+
+function guestCartToCart(g: GuestCartShape): Cart {
+  const items: CartItem[] = g.items.map((line) => {
+    const unit_price = line.product.price_per_piece * line.product.piece_count
+    return {
+      id: line.id,
+      product: line.product,
+      quantity: line.quantity,
+      unit_price,
+      line_total: unit_price * line.quantity,
+    }
+  })
+  return {
+    items,
+    subtotal: items.reduce((sum, i) => sum + i.line_total, 0),
+    item_count: items.reduce((sum, i) => sum + i.quantity, 0),
+  }
+}
+
+export function clearGuestCart() {
+  writeGuestCart({ items: [] })
+}
+
+// Push every guest-cart line to the server, then drop the local copy. Called
+// after a successful login so the user's pre-auth selections aren't lost.
+export async function mergeGuestCartIntoServer(): Promise<void> {
+  const guest = readGuestCart()
+  if (guest.items.length === 0) return
+  for (const line of guest.items) {
+    try {
+      await apiFetch<{ cart: Cart }>('/cart/items', {
+        method: 'POST',
+        auth: true,
+        json: { product_id: line.product.id, quantity: line.quantity },
+      })
+    } catch {
+      // Best-effort merge; if a product is gone we just skip it.
+    }
+  }
+  clearGuestCart()
+  // Force a refresh so callers see the merged server state.
+  cachedCart = null
+  try {
+    await getCart(undefined, { force: true })
+  } catch {
+    // ignore — broadcast will fire if it succeeds
+  }
+}
+
+export async function addToCart(
+  productId: string,
+  quantity = 1,
+  productSnapshot?: CartLineProduct,
+) {
+  if (!isAuthed()) {
+    if (!productSnapshot) {
+      throw new Error('Product details required to add to a guest cart.')
+    }
+    const guest = readGuestCart()
+    const existing = guest.items.find((line) => line.id === productId)
+    if (existing) existing.quantity += quantity
+    else guest.items.push({ id: productId, product: productSnapshot, quantity })
+    writeGuestCart(guest)
+    const cart = guestCartToCart(guest)
+    broadcastCart(cart)
+    return { cart }
+  }
+
   const res = await apiFetch<{ cart: Cart }>('/cart/items', {
     method: 'POST',
     auth: true,
@@ -93,6 +201,12 @@ export function getCart(
   signal?: AbortSignal,
   options: { force?: boolean } = {},
 ): Promise<{ cart: Cart }> {
+  if (!isAuthed()) {
+    const cart = guestCartToCart(readGuestCart())
+    broadcastCart(cart)
+    return Promise.resolve({ cart })
+  }
+
   if (!options.force && cachedCart) {
     return Promise.resolve({ cart: cachedCart })
   }
@@ -135,6 +249,15 @@ export function getCart(
 }
 
 export async function updateCartItem(itemId: string, quantity: number) {
+  if (!isAuthed()) {
+    const guest = readGuestCart()
+    const line = guest.items.find((l) => l.id === itemId)
+    if (line) line.quantity = quantity
+    writeGuestCart(guest)
+    const cart = guestCartToCart(guest)
+    broadcastCart(cart)
+    return { cart }
+  }
   const res = await apiFetch<{ cart: Cart }>(`/cart/items/${itemId}`, {
     method: 'PATCH',
     auth: true,
@@ -145,6 +268,14 @@ export async function updateCartItem(itemId: string, quantity: number) {
 }
 
 export async function removeCartItem(itemId: string) {
+  if (!isAuthed()) {
+    const guest = readGuestCart()
+    guest.items = guest.items.filter((l) => l.id !== itemId)
+    writeGuestCart(guest)
+    const cart = guestCartToCart(guest)
+    broadcastCart(cart)
+    return { cart }
+  }
   const res = await apiFetch<{ cart: Cart }>(`/cart/items/${itemId}`, {
     method: 'DELETE',
     auth: true,

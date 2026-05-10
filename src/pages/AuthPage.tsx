@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '../store/hooks'
 import { setCredentials } from '../store/authSlice'
+import { mergeGuestCartIntoServer } from '../lib/api/cart'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'http://localhost:4000'
 
@@ -11,6 +12,8 @@ interface AuthResponse {
   } | null
   session: {
     access_token: string
+    expires_at?: number | null
+    expires_in?: number | null
   } | null
   error?: string
 }
@@ -182,14 +185,31 @@ export function AuthPage() {
         throw new Error('No access token returned. Please try again.')
       }
 
+      // Prefer absolute `expires_at` (epoch seconds). Fall back to `expires_in`
+      // (seconds-from-now) if that's all we got, and to a 1-hour default if
+      // neither is present.
+      const expiresAt =
+        session?.expires_at ??
+        (session?.expires_in ? Math.floor(Date.now() / 1000) + session.expires_in : null) ??
+        Math.floor(Date.now() / 1000) + 3600
+
       dispatch(
         setCredentials({
           accessToken,
           email: user?.email || trimmedEmail,
+          expiresAt,
         }),
       )
 
-      navigate('/')
+      try {
+        await mergeGuestCartIntoServer()
+      } catch {
+        // non-fatal — user can still re-add items if merge fails.
+      }
+
+      const from =
+        (location.state as { from?: string } | null)?.from ?? '/'
+      navigate(from)
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Authentication failed')
     } finally {
@@ -391,33 +411,34 @@ export function AuthPage() {
                   </button>
                 </div>
 
-                {/* Strength meter slot — always rendered in signup mode so the
-                    card height doesn't jump when the user starts typing. */}
-                {mode === 'signup' ? (
-                  <div className={`space-y-1 pt-1 ${password ? '' : 'invisible'}`} aria-hidden={!password}>
-                    <div className="flex h-1.5 gap-1">
-                      {[0, 1, 2, 3].map((i) => (
-                        <span
-                          key={i}
-                          className={`flex-1 rounded-full transition-colors duration-300 ${
-                            i < passwordStrength
-                              ? passwordStrength <= 1
-                                ? 'bg-red-400'
-                                : passwordStrength === 2
+                {/* Strength meter slot — always rendered so the card height
+                    stays stable across mode toggles and password input. */}
+                <div
+                  className={`space-y-1 pt-1 ${mode === 'signup' && password ? '' : 'invisible'}`}
+                  aria-hidden={mode !== 'signup' || !password}
+                >
+                  <div className="flex h-1.5 gap-1">
+                    {[0, 1, 2, 3].map((i) => (
+                      <span
+                        key={i}
+                        className={`flex-1 rounded-full transition-colors duration-300 ${
+                          i < passwordStrength
+                            ? passwordStrength <= 1
+                              ? 'bg-red-400'
+                              : passwordStrength === 2
+                                ? 'bg-amber-400'
+                                : passwordStrength === 3
                                   ? 'bg-amber-400'
-                                  : passwordStrength === 3
-                                    ? 'bg-amber-400'
-                                    : 'bg-emerald-500'
-                              : 'bg-slate-200'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-fleek-muted">
-                      {password ? STRENGTH_LABELS[passwordStrength] : 'Strength'}
-                    </p>
+                                  : 'bg-emerald-500'
+                            : 'bg-slate-200'
+                        }`}
+                      />
+                    ))}
                   </div>
-                ) : null}
+                  <p className="text-xs text-fleek-muted">
+                    {password ? STRENGTH_LABELS[passwordStrength] : 'Strength'}
+                  </p>
+                </div>
               </div>
 
               {/* Reserved slot — keeps the card height stable whether or not an

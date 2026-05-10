@@ -1,10 +1,11 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteHeader } from '../components/SiteHeader'
 import { SiteFooter } from '../components/SiteFooter'
 import { Reveal } from '../components/Reveal'
 import { useAppSelector } from '../store/hooks'
 import { formatGBP } from '../lib/money'
+import { getReviews, type Review } from '../lib/api/reviews'
 
 const COUNTRY_NAMES: Record<string, string> = {
   GB: 'United Kingdom',
@@ -120,6 +121,43 @@ export function HomePage() {
   }, [allProducts])
   const brandLoop = partnerBrands.length ? [...partnerBrands, ...partnerBrands] : []
 
+  // One-shot fetch of every review (mirrors the `GET /products` "fetch once,
+  // filter in browser" pattern). We pick the three strongest to feature.
+  const [allReviews, setAllReviews] = useState<Review[]>([])
+  const [reviewSummary, setReviewSummary] = useState<{ count: number; average: number | null }>({
+    count: 0,
+    average: null,
+  })
+
+  useEffect(() => {
+    const controller = new AbortController()
+    getReviews(controller.signal)
+      .then((res) => {
+        if (controller.signal.aborted) return
+        setAllReviews(res.reviews)
+        setReviewSummary({
+          count: res.summary.count,
+          average: res.summary.average_rating,
+        })
+      })
+      .catch(() => {
+        // Silent — section hides when there are no reviews to show.
+      })
+    return () => controller.abort()
+  }, [])
+
+  const featuredReviews = useMemo(() => {
+    return [...allReviews]
+      .sort((a, b) => {
+        if (b.rating !== a.rating) return b.rating - a.rating
+        const aTitle = a.title ? 1 : 0
+        const bTitle = b.title ? 1 : 0
+        if (bTitle !== aTitle) return bTitle - aTitle
+        return b.body.length - a.body.length
+      })
+      .slice(0, 3)
+  }, [allReviews])
+
   return (
     <div className="relative min-h-screen overflow-x-clip">
       <div
@@ -140,7 +178,7 @@ export function HomePage() {
             <img
               src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=2200&q=80"
               alt="Vintage fashion rails in a wholesale showroom"
-              className="h-[64vh] min-h-[420px] w-full object-cover opacity-90"
+              className="h-[78vh] min-h-[520px] w-full object-cover opacity-90"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-900/50 to-transparent" />
 
@@ -212,7 +250,10 @@ export function HomePage() {
 
           {brandLoop.length ? (
             <div className="marquee-shell">
-              <div className="marquee-track py-5">
+              <div
+                className="marquee-track py-5"
+                style={{ animationDuration: `${Math.max(20, partnerBrands.length * 3.5)}s` }}
+              >
                 {brandLoop.map((brand, index) => (
                   <span
                     key={`${brand}-${index}`}
@@ -285,6 +326,50 @@ export function HomePage() {
                 </Link>
               )
             })}
+          </div>
+        </Reveal>
+
+        {/* How sourcing works */}
+        <Reveal as="section">
+          <div className="mb-8 max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fleek-primary">
+              How sourcing works
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold text-fleek-text md:text-3xl">
+              From browse to delivery in three steps
+            </h2>
+            <p className="mt-3 text-sm text-fleek-muted">
+              Per-piece pricing, transparent grading, and buyer protection on every order — no
+              surprises between checkout and your warehouse door.
+            </p>
+          </div>
+
+          <div className="relative grid gap-4 md:grid-cols-3">
+            <div
+              aria-hidden="true"
+              className="absolute left-6 right-6 top-12 hidden h-px bg-gradient-to-r from-fleek-border via-fleek-primary/40 to-fleek-border md:block"
+            />
+
+            {sourcingSteps.map((step) => (
+              <article
+                key={step.number}
+                className="relative flex flex-col gap-3 rounded-3xl border border-fleek-border bg-white p-6 shadow-sm shadow-amber-900/5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-900/10"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-fleek-primary text-sm font-semibold text-white shadow-md shadow-amber-900/20">
+                    {step.number}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="text-xs font-semibold uppercase tracking-[0.14em] text-fleek-muted"
+                  >
+                    Step
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-fleek-text">{step.title}</h3>
+                <p className="text-sm text-fleek-muted">{step.detail}</p>
+              </article>
+            ))}
           </div>
         </Reveal>
 
@@ -491,49 +576,78 @@ export function HomePage() {
           ) : null}
         </Reveal>
 
-        {/* How sourcing works */}
-        <Reveal as="section">
-          <div className="mb-8 max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fleek-primary">
-              How sourcing works
-            </p>
-            <h2 className="mt-1 text-2xl font-semibold text-fleek-text md:text-3xl">
-              From browse to delivery in three steps
-            </h2>
-            <p className="mt-3 text-sm text-fleek-muted">
-              Per-piece pricing, transparent grading, and buyer protection on every order — no
-              surprises between checkout and your warehouse door.
-            </p>
-          </div>
-
-          <div className="relative grid gap-4 md:grid-cols-3">
-            <div
-              aria-hidden="true"
-              className="absolute left-6 right-6 top-12 hidden h-px bg-gradient-to-r from-fleek-border via-fleek-primary/40 to-fleek-border md:block"
-            />
-
-            {sourcingSteps.map((step) => (
-              <article
-                key={step.number}
-                className="relative flex flex-col gap-3 rounded-3xl border border-fleek-border bg-white p-6 shadow-sm shadow-amber-900/5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-900/10"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-fleek-primary text-sm font-semibold text-white shadow-md shadow-amber-900/20">
-                    {step.number}
+        {/* Reviews */}
+        {featuredReviews.length ? (
+          <Reveal as="section" className="space-y-6">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fleek-primary">
+                  Trusted by buyers
+                </p>
+                <h2 className="text-2xl font-semibold text-fleek-text md:text-3xl">
+                  What resellers say about MiniFleek
+                </h2>
+              </div>
+              {reviewSummary.average !== null ? (
+                <div className="hidden items-center gap-1.5 text-sm text-fleek-muted md:flex">
+                  <span className="text-fleek-primary">
+                    {'★'.repeat(Math.round(reviewSummary.average))}
                   </span>
-                  <span
-                    aria-hidden="true"
-                    className="text-xs font-semibold uppercase tracking-[0.14em] text-fleek-muted"
-                  >
-                    Step
+                  <span className="font-semibold text-fleek-text">
+                    {reviewSummary.average.toFixed(1)}
+                  </span>
+                  <span>
+                    · {reviewSummary.count} {reviewSummary.count === 1 ? 'review' : 'reviews'}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-fleek-text">{step.title}</h3>
-                <p className="text-sm text-fleek-muted">{step.detail}</p>
-              </article>
-            ))}
-          </div>
-        </Reveal>
+              ) : null}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {featuredReviews.map((review) => (
+                <article
+                  key={review.id}
+                  className="flex h-full flex-col gap-4 rounded-3xl border border-fleek-border bg-white p-6 shadow-sm shadow-amber-900/5 md:p-7"
+                >
+                  <div
+                    aria-label={`${review.rating} out of 5 stars`}
+                    className="text-base tracking-[0.2em] text-fleek-primary"
+                  >
+                    {'★'.repeat(review.rating)}
+                    <span className="text-fleek-border">{'★'.repeat(5 - review.rating)}</span>
+                  </div>
+
+                  {review.title ? (
+                    <p className="text-sm font-semibold text-fleek-text">{review.title}</p>
+                  ) : null}
+
+                  <p className="flex-1 text-sm leading-relaxed text-fleek-text">
+                    “{review.body}”
+                  </p>
+
+                  <div className="flex items-center gap-3 border-t border-fleek-border/70 pt-4">
+                    <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-amber-50 text-sm font-semibold text-fleek-primary">
+                      {review.reviewer_name
+                        .split(' ')
+                        .slice(0, 2)
+                        .map((part) => part[0])
+                        .join('')
+                        .toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-fleek-text">
+                        {review.reviewer_name}
+                      </p>
+                      <p className="truncate text-xs uppercase tracking-[0.1em] text-fleek-muted">
+                        Verified MiniFleek buyer
+                      </p>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </Reveal>
+        ) : null}
 
         {/* Sign-up CTA */}
         {!isAuthed ? (
@@ -587,3 +701,4 @@ export function HomePage() {
     </div>
   )
 }
+

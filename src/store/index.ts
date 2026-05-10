@@ -9,7 +9,7 @@ import {
   persistReducer,
   persistStore,
 } from 'redux-persist'
-import authReducer, { setCredentials } from './authSlice'
+import authReducer, { clearCredentials, setCredentials } from './authSlice'
 import catalogReducer from './catalogSlice'
 
 // Inline localStorage adapter — avoids the CJS/ESM interop bug where Vite
@@ -75,9 +75,21 @@ export const store = configureStore({
 })
 
 export const persistor = persistStore(store, null, () => {
+  const current = store.getState().auth
+
+  // Drop a rehydrated token whose TTL has already passed — otherwise every
+  // authed page mount kicks off a request that 401s and bounces the user to
+  // login despite the store claiming they're signed in.
+  if (current.accessToken && current.expiresAt) {
+    const nowSeconds = Math.floor(Date.now() / 1000)
+    if (nowSeconds >= current.expiresAt - 30) {
+      store.dispatch(clearCredentials())
+      return
+    }
+  }
+
   // After rehydration, only seed from legacy storage if nothing was persisted —
   // i.e. the user upgraded across the localStorage → redux-persist boundary.
-  const current = store.getState().auth
   if (current.accessToken) return
 
   const legacy = consumeLegacyAuth()

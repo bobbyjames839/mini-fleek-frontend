@@ -26,6 +26,9 @@
     background-image:
       radial-gradient(circle at 10% 10%, rgb(234 179 8 / 0.18), transparent 24%),
       radial-gradient(circle at 90% 0%, rgb(251 191 36 / 0.20), transparent 22%);
+    /* Reserve room for the floating AI search bar so end-of-page content (e.g.
+       footers, page CTAs) isn't hidden beneath it on any viewport. */
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   /* Tailwind v4 dropped the default `cursor: pointer` on interactive elements.
@@ -71,6 +74,10 @@
   align-items: center;
   gap: 3rem;
   animation: fleek-marquee 20s linear infinite;
+}
+
+.marquee-item {
+  flex: 0 0 auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -157,6 +164,100 @@
     transition: none;
   }
   .animate-cart-bump {
+    animation: none;
+  }
+}
+
+@keyframes fleek-ai-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.fleek-ai-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgb(253 230 138 / 0) 0%,
+    rgb(253 230 138 / 0.55) 45%,
+    rgb(252 211 77 / 0.75) 50%,
+    rgb(253 230 138 / 0.55) 55%,
+    rgb(253 230 138 / 0) 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  background-color: rgb(255 248 236 / 0.8);
+  animation: fleek-ai-shimmer 1.6s linear infinite;
+}
+
+@keyframes fleek-ai-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0 rgb(234 179 8 / 0));
+  }
+  50% {
+    transform: scale(1.12);
+    filter: drop-shadow(0 0 14px rgb(234 179 8 / 0.55));
+  }
+}
+
+.fleek-ai-pulse {
+  animation: fleek-ai-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes fleek-ai-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fleek-ai-pop {
+  animation: fleek-ai-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fleek-ai-bar-in {
+  0% {
+    opacity: 0;
+    transform: translateY(120%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fleek-ai-bar-in {
+  animation: fleek-ai-bar-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fleek-ai-panel-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fleek-ai-panel-in {
+  animation: fleek-ai-panel-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fleek-ai-shimmer,
+  .fleek-ai-pulse,
+  .fleek-ai-pop,
+  .fleek-ai-bar-in,
+  .fleek-ai-panel-in {
     animation: none;
   }
 }

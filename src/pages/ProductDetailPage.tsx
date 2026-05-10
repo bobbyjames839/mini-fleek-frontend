@@ -47,7 +47,6 @@ function PercentRows({ rows, labelKey }: PercentRowsProps) {
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const isAuthed = useAppSelector((state) => Boolean(state.auth.accessToken))
 
   const catalogProducts = useAppSelector((state) => state.catalog.products)
   const [product, setProduct] = useState<ProductDetail | null>(null)
@@ -107,14 +106,18 @@ export function ProductDetailPage() {
 
   async function handleAddToCart() {
     if (!product) return
-    if (!isAuthed) {
-      navigate('/login', { state: { from: `/product/${product.id}` } })
-      return
-    }
     setAddingToCart(true)
     setCartFeedback(null)
     try {
-      await addToCart(product.id, quantity)
+      await addToCart(product.id, quantity, {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        primary_photo: product.photos[0] ?? null,
+        piece_count: product.piece_count,
+        price_per_piece: product.price_per_piece,
+        vendor: { name: product.vendor.name, slug: product.vendor.slug },
+      })
       setCartFeedback({
         kind: 'success',
         message: `Added ${quantity} × ${product.name} to your cart.`,
@@ -380,13 +383,11 @@ export function ProductDetailPage() {
                         </>
                       ) : isSoldOut ? (
                         'Sold out'
-                      ) : isAuthed ? (
+                      ) : (
                         <>
                           Add to cart
                           <span aria-hidden="true">→</span>
                         </>
-                      ) : (
-                        'Log in to add to cart'
                       )}
                     </button>
 

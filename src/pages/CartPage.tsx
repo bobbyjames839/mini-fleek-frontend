@@ -29,10 +29,6 @@ export function CartPage() {
   }, [navigate])
 
   useEffect(() => {
-    if (!isAuthed) {
-      handleAuthError()
-      return
-    }
     const controller = new AbortController()
     setLoading(true)
     setError(null)
@@ -281,13 +277,29 @@ export function CartPage() {
                   </span>
                 </div>
 
-                <Link
-                  to="/checkout"
-                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-fleek-primary px-5 py-3 text-sm font-semibold text-white shadow-md shadow-amber-900/15 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-lg"
-                >
-                  Proceed to checkout
-                  <span aria-hidden="true">→</span>
-                </Link>
+                {isAuthed ? (
+                  <Link
+                    to="/checkout"
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-fleek-primary px-5 py-3 text-sm font-semibold text-white shadow-md shadow-amber-900/15 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-lg"
+                  >
+                    Proceed to checkout
+                    <span aria-hidden="true">→</span>
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      state={{ from: '/checkout' }}
+                      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-fleek-primary px-5 py-3 text-sm font-semibold text-white shadow-md shadow-amber-900/15 transition hover:-translate-y-0.5 hover:bg-fleek-primary-dark hover:shadow-lg"
+                    >
+                      Log in to check out
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                    <p className="mt-3 text-center text-xs text-fleek-muted">
+                      You need an account to place an order. Your cart will be kept.
+                    </p>
+                  </>
+                )}
 
                 <ul className="mt-5 space-y-2 border-t border-fleek-border/70 pt-4 text-xs text-fleek-muted">
                   <li className="flex items-start gap-2">

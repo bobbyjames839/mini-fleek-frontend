@@ -378,6 +378,7 @@ function countryLabel(code: string) {
   return COUNTRY_NAMES[code] || code
 }
 
+
 function initials(value: string) {
   const parts = value.split(/\s+/).filter(Boolean)
   if (parts.length === 0) return '–'

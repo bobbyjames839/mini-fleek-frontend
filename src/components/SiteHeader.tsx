@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MainMenu } from './MainMenu'
+import { CartButton } from './CartButton'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { clearCredentials } from '../store/authSlice'
 import { API_BASE_URL } from '../lib/api/client'
@@ -31,9 +32,8 @@ interface AccountMenuItem {
 }
 
 const accountMenuItems: AccountMenuItem[] = [
-  { label: 'Browse products', description: 'See every bundle on the marketplace', icon: '◇', to: '/products' },
-  { label: 'My cart', description: 'Items you have reserved', icon: '◫', to: '/cart' },
   { label: 'My orders', description: 'Your order history', icon: '⌖', to: '/orders' },
+  { label: 'My cart', description: 'Items you have reserved', icon: '◫', to: '/cart' },
   { label: 'Checkout', description: 'Place your current order', icon: '⇢', to: '/checkout' },
 ]
 
@@ -84,8 +84,8 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-fleek-border/70 bg-white/75 backdrop-blur-md">
-      <div className="grid w-full grid-cols-1 items-center gap-3 px-4 py-3.5 md:grid-cols-3 md:gap-4 md:px-8 lg:px-10">
-        <div className="flex justify-start">
+      <div className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3.5 md:gap-6 md:px-8 lg:px-10">
+        <div className="flex items-center gap-4 md:gap-8">
           <Link
             to="/"
             className="text-lg font-semibold tracking-[0.16em] text-fleek-text transition hover:text-fleek-primary md:text-xl"
@@ -93,13 +93,11 @@ export function SiteHeader() {
           >
             MINI//FLEEK
           </Link>
-        </div>
-
-        <div className="justify-self-center">
           <MainMenu />
         </div>
 
-        <div className="flex justify-start gap-2 md:justify-end">
+        <div className="flex items-center gap-2">
+          <CartButton />
           {isAuthed ? (
             <div className="relative" ref={accountRef}>
               <button
