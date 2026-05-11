@@ -167,10 +167,6 @@ export function HomePage() {
             <div className="absolute inset-0 flex items-center pb-32 md:pb-20">
               <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-6 md:px-8 md:py-10 lg:px-10">
                 <div className="max-w-2xl space-y-4 text-white fleek-fade-up md:space-y-5">
-                  <p className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-100 backdrop-blur sm:text-xs">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                    Wholesale marketplace · Live
-                  </p>
                   <h1 className="text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl lg:text-6xl">
                     Source graded vintage inventory from verified global vendors.
                   </h1>
